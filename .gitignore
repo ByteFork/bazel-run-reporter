@@ -1,0 +1,10 @@
+# Misc
+results.xml
+bazel-run-reporter
+
+# Folders
+vendor
+dist
+
+# SBOMs generated during CI
+/bom.json

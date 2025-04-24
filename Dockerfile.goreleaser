@@ -1,0 +1,4 @@
+FROM ghcr.io/distroless/static
+
+ENTRYPOINT ["/usr/local/bin/bazel-run-reporter"]
+COPY bazel-run-reporter /usr/local/bin/

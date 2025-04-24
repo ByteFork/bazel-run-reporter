@@ -1,0 +1,93 @@
+version: 2
+project_name: bazel-run-reporter
+
+builds:
+  - env:
+      - CGO_ENABLED=0
+    binary: "{{.ProjectName}}"
+    goos:
+      - darwin
+      - linux
+      - windows
+    goarch:
+      - amd64
+      - arm64
+      - s390x
+      - ppc64le
+    ldflags: -X main.GitVersion={{.Version}} -X main.GitCommit={{.Tag}} -X main.BuildDate={{.Date}}
+    
+signs:
+- cmd: cosign
+  stdin: '{{ .Env.COSIGN_PASSWORD}}'
+  args:
+  - "sign-blob"
+  - "--key=/tmp/cosign.key"
+  - "--output-signature=${signature}"
+  - "${artifact}"
+  - "--yes"
+  artifacts: all
+
+dockers:
+- image_templates: ["ghcr.io/{{ tolower .Env.GITHUB_REPOSITORY_OWNER }}/{{ .ProjectName }}:{{ .Version }}-amd64"]
+  dockerfile: Dockerfile.goreleaser
+  use: buildx
+  build_flag_templates:
+    - --platform=linux/amd64
+    - --label=org.opencontainers.image.ref.name="{{ .Env.GITHUB_REPOSITORY_OWNER }}/{{.ProjectName}}"
+    - --label=org.opencontainers.image.authors="{{ .Env.GITHUB_REPOSITORY_OWNER }}"
+    - --label=org.opencontainers.image.created={{ time "2006-01-02T15:04:05Z07:00" }}
+    - --label=org.opencontainers.image.description="A command-line tool that collects and merges test results from Bazel test runs"
+    - --label=org.opencontainers.image.licenses="MIT"
+    - --label=org.opencontainers.image.revision={{ .FullCommit }}
+    - --label=org.opencontainers.image.source=https://github.com/{{ .Env.GITHUB_REPOSITORY_OWNER }}/{{ .ProjectName }}
+    - --label=org.opencontainers.image.title={{ .ProjectName }}
+    - --label=org.opencontainers.image.url=https://github.com/{{ .Env.GITHUB_REPOSITORY_OWNER }}/{{ .ProjectName }}
+    - --label=org.opencontainers.image.vendor="{{ .Env.GITHUB_REPOSITORY_OWNER }}"
+    - --label=org.opencontainers.image.version={{ .Version }}
+- image_templates: ["ghcr.io/{{ tolower .Env.GITHUB_REPOSITORY_OWNER }}/{{ .ProjectName }}:{{ .Version }}-arm64v8"]
+  goarch: arm64
+  dockerfile: Dockerfile.goreleaser
+  use: buildx
+  build_flag_templates:
+    - --platform=linux/arm64/v8
+    - --label=org.opencontainers.image.ref.name="{{ .Env.GITHUB_REPOSITORY_OWNER }}/{{.ProjectName}}"
+    - --label=org.opencontainers.image.authors="{{ .Env.GITHUB_REPOSITORY_OWNER }}"
+    - --label=org.opencontainers.image.created={{ time "2006-01-02T15:04:05Z07:00" }}
+    - --label=org.opencontainers.image.description="A command-line tool that collects and merges test results from Bazel test runs"
+    - --label=org.opencontainers.image.licenses="MIT"
+    - --label=org.opencontainers.image.revision={{ .FullCommit }}
+    - --label=org.opencontainers.image.source=https://github.com/{{ .Env.GITHUB_REPOSITORY_OWNER }}/{{ .ProjectName }}
+    - --label=org.opencontainers.image.title={{ .ProjectName }}
+    - --label=org.opencontainers.image.url=https://github.com/{{ .Env.GITHUB_REPOSITORY_OWNER }}/{{ .ProjectName }}
+    - --label=org.opencontainers.image.vendor="{{ .Env.GITHUB_REPOSITORY_OWNER }}"
+    - --label=org.opencontainers.image.version={{ .Version }}
+docker_manifests:
+  - name_template: ghcr.io/{{ tolower .Env.GITHUB_REPOSITORY_OWNER }}/{{ .ProjectName }}:{{ .Version }}
+    image_templates:
+      - ghcr.io/{{ tolower .Env.GITHUB_REPOSITORY_OWNER }}/{{ .ProjectName }}:{{ .Version }}-amd64
+      - ghcr.io/{{ tolower .Env.GITHUB_REPOSITORY_OWNER }}/{{ .ProjectName }}:{{ .Version }}-arm64v8
+  - name_template: ghcr.io/{{ tolower .Env.GITHUB_REPOSITORY_OWNER }}/{{ .ProjectName }}:latest
+    image_templates:
+      - ghcr.io/{{ tolower .Env.GITHUB_REPOSITORY_OWNER }}/{{ .ProjectName }}:{{ .Version }}-amd64
+      - ghcr.io/{{ tolower .Env.GITHUB_REPOSITORY_OWNER }}/{{ .ProjectName }}:{{ .Version }}-arm64v8
+
+release:
+  extra_files:
+    - glob: ./bom.json
+  github:
+    owner: ByteFork
+    name: bazel-run-reporter
+  header: |
+    ## Installation
+
+    To install `{{ .ProjectName }}`, download one of the pre-built binaries provided for your platform from the artifacts attached to this release.
+
+    ## Container Images
+
+    The `{{ .ProjectName }}` binaries are also available as container images, based on Distroless Static image. 
+    Container images are available for the following architectures: `linux/amd64` and `linux/arm64`.
+
+    ### GitHub Container Registry
+
+    - `ghcr.io/{{ .Env.GITHUB_REPOSITORY }}:latest`
+    - `ghcr.io/{{ .Env.GITHUB_REPOSITORY }}:{{ .Version }}`
