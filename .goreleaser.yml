@@ -89,5 +89,5 @@ release:
 
     ### GitHub Container Registry
 
-    - `ghcr.io/{{ .Env.GITHUB_REPOSITORY }}:latest`
-    - `ghcr.io/{{ .Env.GITHUB_REPOSITORY }}:{{ .Version }}`
+    - `ghcr.io/{{ tolower .Env.GITHUB_REPOSITORY }}:latest`
+    - `ghcr.io/{{ tolower .Env.GITHUB_REPOSITORY }}:{{ .Version }}`
