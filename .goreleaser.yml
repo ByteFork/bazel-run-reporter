@@ -125,7 +125,10 @@ release:
 
     ## Container Images
 
-    The `{{ .ProjectName }}` binaries are also available as container images, based on Distroless Static and Alpine Linux. The Alpine Linux image includes `curl` and `ca-certificates` packages.
+    The `{{ .ProjectName }}` binaries are also available as container images, based on Distroless Static and Alpine Linux.
+    The Alpine Linux image includes `curl` and `ca-certificates` packages. The Distroless Static image is smaller and does
+    not include any additional packages.
+
     Container images are available for the following architectures: `linux/amd64` and `linux/arm64`.
 
     ### GitHub Container Registry
