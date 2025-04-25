@@ -123,7 +123,10 @@ func main() {
 	if postRunCmd != "" {
 		var c command
 
-		c.Set(postRunCmd)
+		if err := c.Set(postRunCmd); err != nil {
+			logger.Printf("Error setting post-run command: %v", err)
+			return
+		}
 
 		logger.Printf("Running post-run command: %s", c.String())
 

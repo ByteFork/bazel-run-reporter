@@ -3,7 +3,8 @@ package main
 import (
 	"os"
 	"os/exec"
-	"strings"
+
+	"github.com/google/shlex"
 )
 
 type (
@@ -14,9 +15,13 @@ type (
 )
 
 func (c *command) String() string { return c.raw }
-func (c *command) Set(s string) {
-	c.parts = strings.Fields(s)
+func (c *command) Set(s string) error {
+	var err error
+
+	c.parts, err = shlex.Split(s)
 	c.raw = s
+
+	return err
 }
 
 func (c *command) Get() []string {
