@@ -1,0 +1,9 @@
+FROM alpine:3.21.3
+
+RUN apk add --no-cache \
+    ca-certificates \
+    curl
+
+COPY bazel-run-reporter /usr/local/bin/
+
+ENTRYPOINT ["/usr/local/bin/bazel-run-reporter"]

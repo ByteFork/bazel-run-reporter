@@ -61,6 +61,39 @@ dockers:
     - --label=org.opencontainers.image.url=https://github.com/{{ .Env.GITHUB_REPOSITORY_OWNER }}/{{ .ProjectName }}
     - --label=org.opencontainers.image.vendor="{{ .Env.GITHUB_REPOSITORY_OWNER }}"
     - --label=org.opencontainers.image.version={{ .Version }}
+- image_templates: ["ghcr.io/{{ tolower .Env.GITHUB_REPOSITORY_OWNER }}/{{ .ProjectName }}:{{ .Version }}-alpine-amd64"]
+  dockerfile: Dockerfile.alpine
+  use: buildx
+  build_flag_templates:
+    - --platform=linux/amd64
+    - --label=org.opencontainers.image.ref.name="{{ .Env.GITHUB_REPOSITORY_OWNER }}/{{.ProjectName}}"
+    - --label=org.opencontainers.image.authors="{{ .Env.GITHUB_REPOSITORY_OWNER }}"
+    - --label=org.opencontainers.image.created={{ time "2006-01-02T15:04:05Z07:00" }}
+    - --label=org.opencontainers.image.description="A command-line tool that collects and merges test results from Bazel test runs"
+    - --label=org.opencontainers.image.licenses="MIT"
+    - --label=org.opencontainers.image.revision={{ .FullCommit }}
+    - --label=org.opencontainers.image.source=https://github.com/{{ .Env.GITHUB_REPOSITORY_OWNER }}/{{ .ProjectName }}
+    - --label=org.opencontainers.image.title={{ .ProjectName }}
+    - --label=org.opencontainers.image.url=https://github.com/{{ .Env.GITHUB_REPOSITORY_OWNER }}/{{ .ProjectName }}
+    - --label=org.opencontainers.image.vendor="{{ .Env.GITHUB_REPOSITORY_OWNER }}"
+    - --label=org.opencontainers.image.version={{ .Version }}
+- image_templates: ["ghcr.io/{{ tolower .Env.GITHUB_REPOSITORY_OWNER }}/{{ .ProjectName }}:{{ .Version }}-alpine-arm64v8"]
+  goarch: arm64
+  dockerfile: Dockerfile.alpine
+  use: buildx
+  build_flag_templates:
+    - --platform=linux/arm64/v8
+    - --label=org.opencontainers.image.ref.name="{{ .Env.GITHUB_REPOSITORY_OWNER }}/{{.ProjectName}}"
+    - --label=org.opencontainers.image.authors="{{ .Env.GITHUB_REPOSITORY_OWNER }}"
+    - --label=org.opencontainers.image.created={{ time "2006-01-02T15:04:05Z07:00" }}
+    - --label=org.opencontainers.image.description="A command-line tool that collects and merges test results from Bazel test runs"
+    - --label=org.opencontainers.image.licenses="MIT"
+    - --label=org.opencontainers.image.revision={{ .FullCommit }}
+    - --label=org.opencontainers.image.source=https://github.com/{{ .Env.GITHUB_REPOSITORY_OWNER }}/{{ .ProjectName }}
+    - --label=org.opencontainers.image.title={{ .ProjectName }}
+    - --label=org.opencontainers.image.url=https://github.com/{{ .Env.GITHUB_REPOSITORY_OWNER }}/{{ .ProjectName }}
+    - --label=org.opencontainers.image.vendor="{{ .Env.GITHUB_REPOSITORY_OWNER }}"
+    - --label=org.opencontainers.image.version={{ .Version }}
 docker_manifests:
   - name_template: ghcr.io/{{ tolower .Env.GITHUB_REPOSITORY_OWNER }}/{{ .ProjectName }}:{{ .Version }}
     image_templates:
@@ -70,6 +103,14 @@ docker_manifests:
     image_templates:
       - ghcr.io/{{ tolower .Env.GITHUB_REPOSITORY_OWNER }}/{{ .ProjectName }}:{{ .Version }}-amd64
       - ghcr.io/{{ tolower .Env.GITHUB_REPOSITORY_OWNER }}/{{ .ProjectName }}:{{ .Version }}-arm64v8
+  - name_template: ghcr.io/{{ tolower .Env.GITHUB_REPOSITORY_OWNER }}/{{ .ProjectName }}:{{ .Version }}-alpine
+    image_templates:
+      - ghcr.io/{{ tolower .Env.GITHUB_REPOSITORY_OWNER }}/{{ .ProjectName }}:{{ .Version }}-alpine-amd64
+      - ghcr.io/{{ tolower .Env.GITHUB_REPOSITORY_OWNER }}/{{ .ProjectName }}:{{ .Version }}-alpine-arm64v8
+  - name_template: ghcr.io/{{ tolower .Env.GITHUB_REPOSITORY_OWNER }}/{{ .ProjectName }}:latest-alpine
+    image_templates:
+      - ghcr.io/{{ tolower .Env.GITHUB_REPOSITORY_OWNER }}/{{ .ProjectName }}:{{ .Version }}-alpine-amd64
+      - ghcr.io/{{ tolower .Env.GITHUB_REPOSITORY_OWNER }}/{{ .ProjectName }}:{{ .Version }}-alpine-arm64v8
 
 release:
   extra_files:
@@ -84,10 +125,11 @@ release:
 
     ## Container Images
 
-    The `{{ .ProjectName }}` binaries are also available as container images, based on Distroless Static image. 
+    The `{{ .ProjectName }}` binaries are also available as container images, based on Distroless Static and Alpine Linux. The Alpine Linux image includes `curl` and `ca-certificates` packages.
     Container images are available for the following architectures: `linux/amd64` and `linux/arm64`.
 
     ### GitHub Container Registry
 
     - `ghcr.io/{{ tolower .Env.GITHUB_REPOSITORY }}:latest`
     - `ghcr.io/{{ tolower .Env.GITHUB_REPOSITORY }}:{{ .Version }}`
+    - `ghcr.io/{{ tolower .Env.GITHUB_REPOSITORY }}:{{ .Version }}-alpine`
