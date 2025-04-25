@@ -121,7 +121,7 @@ func main() {
 	logger.Printf("Tests written to %s", outputFile)
 
 	if postRunCmd != "" {
-		var c command
+		var c CommandHook
 
 		if err := c.Set(postRunCmd); err != nil {
 			logger.Printf("Error setting post-run command: %v", err)

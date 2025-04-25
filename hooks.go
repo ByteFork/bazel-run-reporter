@@ -8,23 +8,23 @@ import (
 )
 
 type (
-	command struct {
-		raw   string
+	CommandHook struct {
+		cmd   string
 		parts []string
 	}
 )
 
-func (c *command) String() string { return c.raw }
-func (c *command) Set(s string) error {
+func (c *CommandHook) String() string { return c.cmd }
+func (c *CommandHook) Set(s string) error {
 	var err error
 
 	c.parts, err = shlex.Split(s)
-	c.raw = s
+	c.cmd = s
 
 	return err
 }
 
-func (c *command) Get() []string {
+func (c *CommandHook) Get() []string {
 	if c == nil {
 		return nil
 	}
@@ -32,7 +32,7 @@ func (c *command) Get() []string {
 	return c.parts
 }
 
-func (c *command) Execute() error {
+func (c *CommandHook) Execute() error {
 	command := c.Get()
 
 	if len(command) == 0 {
