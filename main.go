@@ -15,40 +15,30 @@ const (
 )
 
 var (
-	testlogsDir string
-	outputFile  string
-	postRunCmd  string
-	silent      bool
-	showVersion bool
-	logger      *log.Logger
+	logger *log.Logger
 
 	GitVersion = "0.0.1"
 	GitCommit  = ""
 	BuildDate  = ""
 )
 
+type Config struct {
+	TestlogsDir string
+	OutputFile  string
+	PostRunCmd  string
+	ShowVersion bool
+	Silent      bool
+}
+
 func main() {
-	flag.Usage = func() {
-		fmt.Fprintf(flag.CommandLine.Output(), "bazel-run-reporter version %s\n\n", GitVersion)
-		fmt.Fprintf(flag.CommandLine.Output(), "Usage: bazel-run-reporter [options]\n\n")
-		fmt.Fprintf(flag.CommandLine.Output(), "Options:\n")
-		flag.PrintDefaults()
-	}
+	cfg := parseFlags()
 
-	flag.StringVar(&testlogsDir, "testlogs-dir", "bazel-testlogs", "Directory containing test.xml files")
-	flag.StringVar(&outputFile, "output-file", "results.xml", "Output file for merged test results")
-	flag.StringVar(&postRunCmd, "post-run", "", "Command to run after the tests results merged")
-	flag.BoolVar(&showVersion, "version", false, "Show version information")
-	flag.BoolVar(&silent, "silent", false, "Silent mode (suppress output)")
-
-	flag.Parse()
-
-	if showVersion {
-		version()
+	if cfg.ShowVersion {
+		printVersion()
 		return
 	}
 
-	if silent {
+	if cfg.Silent {
 		logger = log.New(io.Discard, "", 0)
 	} else {
 		logger = log.New(os.Stdout, "", log.LstdFlags)
@@ -56,7 +46,7 @@ func main() {
 
 	var testXMLFiles []string
 
-	walk, err := filepath.EvalSymlinks(testlogsDir)
+	walk, err := filepath.EvalSymlinks(cfg.TestlogsDir)
 	if err != nil {
 		logger.Fatalf("Error evaluating symlinks: %v", err)
 	}
@@ -114,16 +104,16 @@ func main() {
 		logger.Fatalf("Error marshaling merged XML: %v", err)
 	}
 
-	if err := os.WriteFile(outputFile, append([]byte(xml.Header), output...), fileMode); err != nil {
+	if err := os.WriteFile(cfg.OutputFile, append([]byte(xml.Header), output...), fileMode); err != nil {
 		logger.Fatalf("Error writing merged XML to file: %v", err)
 	}
 
-	logger.Printf("Tests written to %s", outputFile)
+	logger.Printf("Tests written to %s", cfg.OutputFile)
 
-	if postRunCmd != "" {
+	if cfg.PostRunCmd != "" {
 		var c CommandHook
 
-		if err := c.Set(postRunCmd); err != nil {
+		if err := c.Set(cfg.PostRunCmd); err != nil {
 			logger.Printf("Error setting post-run command: %v", err)
 			return
 		}
@@ -136,7 +126,28 @@ func main() {
 	}
 }
 
-func version() {
+func parseFlags() *Config {
+	var cfg Config
+
+	flag.Usage = func() {
+		fmt.Fprintf(flag.CommandLine.Output(), "bazel-run-reporter version %s\n\n", GitVersion)
+		fmt.Fprintf(flag.CommandLine.Output(), "Usage: bazel-run-reporter [options]\n\n")
+		fmt.Fprintf(flag.CommandLine.Output(), "Options:\n")
+		flag.PrintDefaults()
+	}
+
+	flag.StringVar(&cfg.TestlogsDir, "testlogs-dir", "bazel-testlogs", "Directory containing test.xml files")
+	flag.StringVar(&cfg.OutputFile, "output-file", "results.xml", "Output file for merged test results")
+	flag.StringVar(&cfg.PostRunCmd, "post-run", "", "Command to run after the tests results merged")
+	flag.BoolVar(&cfg.ShowVersion, "version", false, "Show version information")
+	flag.BoolVar(&cfg.Silent, "silent", false, "Silent mode (suppress output)")
+
+	flag.Parse()
+
+	return &cfg
+}
+
+func printVersion() {
 	fmt.Printf("bazel-run-reporter version %s\n", GitVersion)
 
 	if GitCommit != "" {
