@@ -1,6 +1,16 @@
-# Bazel Run Reporter | [![CI](https://github.com/ByteFork/bazel-run-reporter/actions/workflows/ci.yml/badge.svg)](https://github.com/ByteFork/bazel-run-reporter/actions/workflows/ci.yml)
+<div align="center" markdown="1">
+
+# Bazel Run Reporter
+
+[![Tests](https://github.com/ByteFork/bazel-run-reporter/actions/workflows/ci.yml/badge.svg)](https://github.com/ByteFork/bazel-run-reporter/actions/workflows/ci.yml)
+[![Container Image Repository on GHCR](https://ghcr-badge.egpl.dev/ByteFork/bazel-run-reporter/latest_tag?trim=major&label=latest "Docker Repository on ghcr")](https://github.com/ByteFork/bazel-run-reporter/pkgs/container/bazel-run-reporter)
+[![Go Report Card](https://goreportcard.com/badge/github.com/ByteFork/bazel-run-reporter)](https://goreportcard.com/report/github.com/ByteFork/bazel-run-reporter)
+
 
 A command-line tool that collects and merges test results from Bazel test runs. This tool scans the bazel-testlogs directory (or any specified directory) for JUnit/XML test reports and combines them into a single consistent report file. Later combined test results can be reported with the `-post-run` flag
+<br />
+
+</div>
 
 ## Features
 
