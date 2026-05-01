@@ -4,7 +4,7 @@ project_name: bazel-run-reporter
 builds:
   - env:
       - CGO_ENABLED=0
-    binary: "{{.ProjectName}}"
+    binary: "{{ .ProjectName }}"
     goos:
       - darwin
       - linux
@@ -14,103 +14,102 @@ builds:
       - arm64
       - s390x
       - ppc64le
-    ldflags: -X main.GitVersion={{.Version}} -X main.GitCommit={{.Tag}} -X main.BuildDate={{.Date}}
-    
-signs:
-- cmd: cosign
-  stdin: '{{ .Env.COSIGN_PASSWORD}}'
-  args:
-  - "sign-blob"
-  - "--key=/tmp/cosign.key"
-  - "--output-signature=${signature}"
-  - "${artifact}"
-  - "--yes"
-  artifacts: all
+    flags:
+      - -trimpath
+    ldflags:
+      - -s -w
+      - -X main.GitVersion={{ .Version }}
+      - -X main.GitCommit={{ .FullCommit }}
+      - -X main.BuildDate={{ .Date }}
 
-dockers:
-- image_templates: ["ghcr.io/{{ tolower .Env.GITHUB_REPOSITORY_OWNER }}/{{ .ProjectName }}:{{ .Version }}-amd64"]
-  dockerfile: Dockerfile.goreleaser
-  use: buildx
-  build_flag_templates:
-    - --platform=linux/amd64
-    - --label=org.opencontainers.image.ref.name="{{ .Env.GITHUB_REPOSITORY_OWNER }}/{{.ProjectName}}"
-    - --label=org.opencontainers.image.authors="{{ .Env.GITHUB_REPOSITORY_OWNER }}"
-    - --label=org.opencontainers.image.created={{ time "2006-01-02T15:04:05Z07:00" }}
-    - --label=org.opencontainers.image.description="A command-line tool that collects and merges test results from Bazel test runs"
-    - --label=org.opencontainers.image.licenses="MIT"
-    - --label=org.opencontainers.image.revision={{ .FullCommit }}
-    - --label=org.opencontainers.image.source=https://github.com/{{ .Env.GITHUB_REPOSITORY_OWNER }}/{{ .ProjectName }}
-    - --label=org.opencontainers.image.title={{ .ProjectName }}
-    - --label=org.opencontainers.image.url=https://github.com/{{ .Env.GITHUB_REPOSITORY_OWNER }}/{{ .ProjectName }}
-    - --label=org.opencontainers.image.vendor="{{ .Env.GITHUB_REPOSITORY_OWNER }}"
-    - --label=org.opencontainers.image.version={{ .Version }}
-- image_templates: ["ghcr.io/{{ tolower .Env.GITHUB_REPOSITORY_OWNER }}/{{ .ProjectName }}:{{ .Version }}-arm64v8"]
-  goarch: arm64
-  dockerfile: Dockerfile.goreleaser
-  use: buildx
-  build_flag_templates:
-    - --platform=linux/arm64/v8
-    - --label=org.opencontainers.image.ref.name="{{ .Env.GITHUB_REPOSITORY_OWNER }}/{{.ProjectName}}"
-    - --label=org.opencontainers.image.authors="{{ .Env.GITHUB_REPOSITORY_OWNER }}"
-    - --label=org.opencontainers.image.created={{ time "2006-01-02T15:04:05Z07:00" }}
-    - --label=org.opencontainers.image.description="A command-line tool that collects and merges test results from Bazel test runs"
-    - --label=org.opencontainers.image.licenses="MIT"
-    - --label=org.opencontainers.image.revision={{ .FullCommit }}
-    - --label=org.opencontainers.image.source=https://github.com/{{ .Env.GITHUB_REPOSITORY_OWNER }}/{{ .ProjectName }}
-    - --label=org.opencontainers.image.title={{ .ProjectName }}
-    - --label=org.opencontainers.image.url=https://github.com/{{ .Env.GITHUB_REPOSITORY_OWNER }}/{{ .ProjectName }}
-    - --label=org.opencontainers.image.vendor="{{ .Env.GITHUB_REPOSITORY_OWNER }}"
-    - --label=org.opencontainers.image.version={{ .Version }}
-- image_templates: ["ghcr.io/{{ tolower .Env.GITHUB_REPOSITORY_OWNER }}/{{ .ProjectName }}:{{ .Version }}-alpine-amd64"]
-  dockerfile: Dockerfile.alpine
-  use: buildx
-  build_flag_templates:
-    - --platform=linux/amd64
-    - --label=org.opencontainers.image.ref.name="{{ .Env.GITHUB_REPOSITORY_OWNER }}/{{.ProjectName}}"
-    - --label=org.opencontainers.image.authors="{{ .Env.GITHUB_REPOSITORY_OWNER }}"
-    - --label=org.opencontainers.image.created={{ time "2006-01-02T15:04:05Z07:00" }}
-    - --label=org.opencontainers.image.description="A command-line tool that collects and merges test results from Bazel test runs"
-    - --label=org.opencontainers.image.licenses="MIT"
-    - --label=org.opencontainers.image.revision={{ .FullCommit }}
-    - --label=org.opencontainers.image.source=https://github.com/{{ .Env.GITHUB_REPOSITORY_OWNER }}/{{ .ProjectName }}
-    - --label=org.opencontainers.image.title={{ .ProjectName }}
-    - --label=org.opencontainers.image.url=https://github.com/{{ .Env.GITHUB_REPOSITORY_OWNER }}/{{ .ProjectName }}
-    - --label=org.opencontainers.image.vendor="{{ .Env.GITHUB_REPOSITORY_OWNER }}"
-    - --label=org.opencontainers.image.version={{ .Version }}
-- image_templates: ["ghcr.io/{{ tolower .Env.GITHUB_REPOSITORY_OWNER }}/{{ .ProjectName }}:{{ .Version }}-alpine-arm64v8"]
-  goarch: arm64
-  dockerfile: Dockerfile.alpine
-  use: buildx
-  build_flag_templates:
-    - --platform=linux/arm64/v8
-    - --label=org.opencontainers.image.ref.name="{{ .Env.GITHUB_REPOSITORY_OWNER }}/{{.ProjectName}}"
-    - --label=org.opencontainers.image.authors="{{ .Env.GITHUB_REPOSITORY_OWNER }}"
-    - --label=org.opencontainers.image.created={{ time "2006-01-02T15:04:05Z07:00" }}
-    - --label=org.opencontainers.image.description="A command-line tool that collects and merges test results from Bazel test runs"
-    - --label=org.opencontainers.image.licenses="MIT"
-    - --label=org.opencontainers.image.revision={{ .FullCommit }}
-    - --label=org.opencontainers.image.source=https://github.com/{{ .Env.GITHUB_REPOSITORY_OWNER }}/{{ .ProjectName }}
-    - --label=org.opencontainers.image.title={{ .ProjectName }}
-    - --label=org.opencontainers.image.url=https://github.com/{{ .Env.GITHUB_REPOSITORY_OWNER }}/{{ .ProjectName }}
-    - --label=org.opencontainers.image.vendor="{{ .Env.GITHUB_REPOSITORY_OWNER }}"
-    - --label=org.opencontainers.image.version={{ .Version }}
-docker_manifests:
-  - name_template: ghcr.io/{{ tolower .Env.GITHUB_REPOSITORY_OWNER }}/{{ .ProjectName }}:{{ .Version }}
-    image_templates:
-      - ghcr.io/{{ tolower .Env.GITHUB_REPOSITORY_OWNER }}/{{ .ProjectName }}:{{ .Version }}-amd64
-      - ghcr.io/{{ tolower .Env.GITHUB_REPOSITORY_OWNER }}/{{ .ProjectName }}:{{ .Version }}-arm64v8
-  - name_template: ghcr.io/{{ tolower .Env.GITHUB_REPOSITORY_OWNER }}/{{ .ProjectName }}:latest
-    image_templates:
-      - ghcr.io/{{ tolower .Env.GITHUB_REPOSITORY_OWNER }}/{{ .ProjectName }}:{{ .Version }}-amd64
-      - ghcr.io/{{ tolower .Env.GITHUB_REPOSITORY_OWNER }}/{{ .ProjectName }}:{{ .Version }}-arm64v8
-  - name_template: ghcr.io/{{ tolower .Env.GITHUB_REPOSITORY_OWNER }}/{{ .ProjectName }}:{{ .Version }}-alpine
-    image_templates:
-      - ghcr.io/{{ tolower .Env.GITHUB_REPOSITORY_OWNER }}/{{ .ProjectName }}:{{ .Version }}-alpine-amd64
-      - ghcr.io/{{ tolower .Env.GITHUB_REPOSITORY_OWNER }}/{{ .ProjectName }}:{{ .Version }}-alpine-arm64v8
-  - name_template: ghcr.io/{{ tolower .Env.GITHUB_REPOSITORY_OWNER }}/{{ .ProjectName }}:latest-alpine
-    image_templates:
-      - ghcr.io/{{ tolower .Env.GITHUB_REPOSITORY_OWNER }}/{{ .ProjectName }}:{{ .Version }}-alpine-amd64
-      - ghcr.io/{{ tolower .Env.GITHUB_REPOSITORY_OWNER }}/{{ .ProjectName }}:{{ .Version }}-alpine-arm64v8
+signs:
+  - id: cosign
+    cmd: cosign
+    signature: "${artifact}.sigstore.json"
+    args:
+      - sign-blob
+      - "--bundle=${signature}"
+      - "${artifact}"
+      - "--yes"
+    artifacts: all
+    output: true
+
+dockers_v2:
+  - id: distroless
+    dockerfile: Dockerfile.goreleaser
+    images:
+      - "ghcr.io/{{ tolower .Env.GITHUB_REPOSITORY_OWNER }}/{{ .ProjectName }}"
+    tags:
+      - "{{ .Version }}"
+      - "{{ if not .IsNightly }}latest{{ end }}"
+    platforms:
+      - linux/amd64
+      - linux/arm64
+    labels: &oci-labels
+      org.opencontainers.image.ref.name: "{{ .Env.GITHUB_REPOSITORY_OWNER }}/{{ .ProjectName }}"
+      org.opencontainers.image.authors: "{{ .Env.GITHUB_REPOSITORY_OWNER }}"
+      org.opencontainers.image.created: '{{ time "2006-01-02T15:04:05Z07:00" }}'
+      org.opencontainers.image.description: "A command-line tool that collects and merges test results from Bazel test runs"
+      org.opencontainers.image.licenses: MIT
+      org.opencontainers.image.revision: "{{ .FullCommit }}"
+      org.opencontainers.image.source: "https://github.com/{{ .Env.GITHUB_REPOSITORY_OWNER }}/{{ .ProjectName }}"
+      org.opencontainers.image.title: "{{ .ProjectName }}"
+      org.opencontainers.image.url: "https://github.com/{{ .Env.GITHUB_REPOSITORY_OWNER }}/{{ .ProjectName }}"
+      org.opencontainers.image.vendor: "{{ .Env.GITHUB_REPOSITORY_OWNER }}"
+      org.opencontainers.image.version: "{{ .Version }}"
+
+  - id: alpine
+    dockerfile: Dockerfile.alpine
+    images:
+      - "ghcr.io/{{ tolower .Env.GITHUB_REPOSITORY_OWNER }}/{{ .ProjectName }}"
+    tags:
+      - "{{ .Version }}-alpine"
+      - "{{ if not .IsNightly }}latest-alpine{{ end }}"
+    platforms:
+      - linux/amd64
+      - linux/arm64
+    labels: *oci-labels
+
+changelog:
+  use: git
+  sort: asc
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
+      - "^chore:"
+      - "^ci:"
+      - "^style:"
+      - "Merge pull request"
+      - "Merge branch"
+  groups:
+    - title: Features
+      regexp: '^.*?feat(\(.+\))??!?:.+$'
+      order: 0
+    - title: Bug fixes
+      regexp: '^.*?fix(\(.+\))??!?:.+$'
+      order: 1
+    - title: Performance
+      regexp: '^.*?perf(\(.+\))??!?:.+$'
+      order: 2
+    - title: Refactors
+      regexp: '^.*?refactor(\(.+\))??!?:.+$'
+      order: 3
+    - title: Dependency updates
+      regexp: '^.*?build(deps)(\(.+\))??!?:.+$'
+      order: 4
+    - title: Others
+      order: 999
+
+docker_signs:
+  - id: cosign-images
+    cmd: cosign
+    artifacts: all
+    output: true
+    args:
+      - sign
+      - "${artifact}@${digest}"
+      - --yes
 
 release:
   extra_files:

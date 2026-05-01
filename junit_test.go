@@ -275,7 +275,6 @@ func TestParseActualFiles(t *testing.T) {
 
 		return nil
 	})
-
 	if err != nil {
 		t.Fatalf("Failed to walk testdata directory: %v", err)
 	}

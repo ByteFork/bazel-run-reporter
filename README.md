@@ -20,6 +20,7 @@ A command-line tool that collects and merges test results from Bazel test runs. 
 - Generates a single XML file compatible with CI systems and test visualization tools
 - Silent mode for CI/CD pipeline integration
 - Post-run command execution for seamless integration with reporting services
+- Configurable post-run timeout to prevent hanging reporting commands
 
 ## Usage
 
@@ -34,6 +35,8 @@ Options:
     	Output file for merged test results (default "results.xml")
   -post-run string
     	Command to run after the tests results merged
+  -post-run-timeout duration
+      Timeout for the post-run command (default 1m0s)
   -silent
     	Silent mode (suppress output)
   -testlogs-dir string
@@ -45,8 +48,7 @@ Options:
 ### Container Image
 
 ```bash
-$ podman run -v $(pwd)/testdata:/testdata ghcr.io/bytefork/bazel-run-reporter -testlogs-dir /testdata -output-file /testdata/merged.x
-ml
+$ podman run -v $(pwd)/testdata:/testdata ghcr.io/bytefork/bazel-run-reporter -testlogs-dir /testdata -output-file /testdata/merged.xml
 2025/04/24 22:56:12 Found 2 test.xml files.
 2025/04/24 22:56:12 Tests written to /testdata/merged.xml
 ```
@@ -67,12 +69,30 @@ $ export POST_RUN="testmo automation:run:submit \
   --results results.xml"
 
 # Merge results and upload to a reporting service
-$ bazel-run-reporter -post-run "$POST_RUN"
+$ bazel-run-reporter -post-run "$POST_RUN" -post-run-timeout 2m
 ```
 
 ## Installation
 
-Download a binary from [Releases](https://github.com/ByteFork/bazel-run-reporter/releases) or install from sources with `go install`:
+Install the latest release with the installer:
+
+```bash
+$ curl -fsSL https://install.bytefork.io/bazel-run-reporter | sh
+```
+
+Install a specific version or directory:
+
+```bash
+$ curl -fsSL https://install.bytefork.io/bazel-run-reporter | sh -s -- --version v0.0.1 --bindir ~/.local/bin
+```
+
+You can also run the installer directly from GitHub:
+
+```bash
+$ curl -fsSL https://raw.githubusercontent.com/ByteFork/bazel-run-reporter/main/install.sh | sh
+```
+
+Or download a binary from [Releases](https://github.com/ByteFork/bazel-run-reporter/releases), or install from source with `go install`:
 
 ```bash
 $ go install github.com/ByteFork/bazel-run-reporter@latest
