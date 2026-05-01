@@ -3,7 +3,7 @@
 # Bazel Run Reporter
 
 [![Tests](https://github.com/ByteFork/bazel-run-reporter/actions/workflows/ci.yml/badge.svg)](https://github.com/ByteFork/bazel-run-reporter/actions/workflows/ci.yml)
-[![Container Image Repository on GHCR](https://ghcr-badge.egpl.dev/ByteFork/bazel-run-reporter/latest_tag?trim=major&label=latest "Docker Repository on ghcr")](https://github.com/ByteFork/bazel-run-reporter/pkgs/container/bazel-run-reporter)
+[![Release](https://img.shields.io/github/v/release/ByteFork/bazel-run-reporter?sort=semver)](https://github.com/ByteFork/bazel-run-reporter/releases/latest)
 [![Go Report Card](https://goreportcard.com/badge/github.com/ByteFork/bazel-run-reporter)](https://goreportcard.com/report/github.com/ByteFork/bazel-run-reporter)
 
 
