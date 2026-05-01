@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Documentation
+    url: https://github.com/ByteFork/bazel-run-reporter#readme
+    about: Please check the README before filing an issue.

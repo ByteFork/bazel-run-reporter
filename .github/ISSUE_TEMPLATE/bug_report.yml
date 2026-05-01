@@ -1,0 +1,67 @@
+name: Bug report
+description: Report something broken or unexpected.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for filing a bug report. A quick search of existing issues
+        may turn up a match - please check before opening a new one.
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened
+      description: Short description of the observed behavior.
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      description: What should have happened instead?
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce
+      description: Include the command, relevant flags, and a minimal test.xml or directory layout if possible.
+      placeholder: |
+        1. Run `bazel test //...`
+        2. Run `bazel-run-reporter -testlogs-dir bazel-testlogs -output-file results.xml`
+        3. Observe ...
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: "Output of `bazel-run-reporter -version` or the container image tag."
+      placeholder: "v0.0.8 / ghcr.io/bytefork/bazel-run-reporter:0.0.8"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: how-run
+    attributes:
+      label: How you ran it
+      options:
+        - Binary (go install / release artifact)
+        - Docker (distroless)
+        - Docker (alpine)
+        - From source (go run)
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant logs
+      description: Paste stdout/stderr output and any relevant JUnit XML snippets. Sensitive data should be redacted.
+      render: shell
+    validations:
+      required: false
