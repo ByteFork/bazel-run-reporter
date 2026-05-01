@@ -34,7 +34,7 @@ jobs:
         run: cyclonedx-gomod mod -licenses -json -output bom.json
 
       - uses: sigstore/cosign-installer@v3
-      - uses: docker/setup-qemu-action@v3
+      - uses: docker/setup-qemu-action@v4
       - uses: docker/setup-buildx-action@v3
 
       - name: Login to GHCR
