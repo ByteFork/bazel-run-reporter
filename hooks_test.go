@@ -2,10 +2,13 @@ package main
 
 import (
 	"bytes"
+	"context"
 	"errors"
+	"fmt"
 	"os"
 	"os/exec"
 	"testing"
+	"time"
 )
 
 func TestCommandSet(t *testing.T) {
@@ -79,13 +82,14 @@ func TestCommandExecute(t *testing.T) {
 			return
 		}
 
-		err := c.Execute()
+		err := c.Execute(time.Minute)
 
 		w.Close()
 
 		os.Stdout = oldStdout
 
 		var buf bytes.Buffer
+
 		_, _ = buf.ReadFrom(r)
 		output := buf.String()
 
@@ -105,8 +109,7 @@ func TestCommandExecute(t *testing.T) {
 			return
 		}
 
-		err := c.Execute()
-
+		err := c.Execute(time.Minute)
 		if err == nil {
 			t.Error("command.Execute() expected error for non-existent command")
 		}
@@ -133,7 +136,28 @@ func TestEmptyCommand(t *testing.T) {
 		return
 	}
 
-	if err := c.Execute(); err != nil {
+	if err := c.Execute(time.Minute); err != nil {
 		t.Errorf("empty command.Execute() error = %v, want nil", err)
 	}
+}
+
+func TestCommandExecuteTimeout(t *testing.T) {
+	c := &CommandHook{}
+	if err := c.Set(fmt.Sprintf("env TEST_COMMAND_TIMEOUT_HELPER=1 %q -test.run=TestCommandExecuteTimeoutHelper", os.Args[0])); err != nil {
+		t.Errorf("command.Set() error = %v", err)
+		return
+	}
+
+	err := c.Execute(10 * time.Millisecond)
+	if !errors.Is(err, context.DeadlineExceeded) {
+		t.Errorf("command.Execute() error = %v, want %v", err, context.DeadlineExceeded)
+	}
+}
+
+func TestCommandExecuteTimeoutHelper(_ *testing.T) {
+	if os.Getenv("TEST_COMMAND_TIMEOUT_HELPER") != "1" {
+		return
+	}
+
+	time.Sleep(time.Minute)
 }

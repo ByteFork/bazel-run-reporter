@@ -1,8 +1,11 @@
 package main
 
 import (
+	"context"
+	"errors"
 	"os"
 	"os/exec"
+	"time"
 
 	"github.com/google/shlex"
 )
@@ -32,18 +35,33 @@ func (c *CommandHook) Get() []string {
 	return c.parts
 }
 
-func (c *CommandHook) Execute() error {
+func (c *CommandHook) Execute(timeout time.Duration) error {
 	command := c.Get()
 
 	if len(command) == 0 {
 		return nil
 	}
 
+	ctx := context.Background()
+
+	if timeout > 0 {
+		var cancel context.CancelFunc
+
+		ctx, cancel = context.WithTimeout(ctx, timeout)
+		defer cancel()
+	}
+
 	// #nosec G204 - Command is from a trusted source (command line flag)
-	cmd := exec.Command(command[0], command[1:]...)
+	cmd := exec.CommandContext(ctx, command[0], command[1:]...)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	cmd.Env = os.Environ()
 
-	return cmd.Run()
+	err := cmd.Run()
+
+	if errors.Is(ctx.Err(), context.DeadlineExceeded) {
+		return ctx.Err()
+	}
+
+	return err
 }

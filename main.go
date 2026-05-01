@@ -8,6 +8,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"time"
 )
 
 const (
@@ -23,11 +24,12 @@ var (
 )
 
 type Config struct {
-	TestlogsDir string
-	OutputFile  string
-	PostRunCmd  string
-	ShowVersion bool
-	Silent      bool
+	TestlogsDir    string
+	OutputFile     string
+	PostRunCmd     string
+	PostRunTimeout time.Duration
+	ShowVersion    bool
+	Silent         bool
 }
 
 func main() {
@@ -66,7 +68,6 @@ func main() {
 
 		return nil
 	})
-
 	if err != nil {
 		logger.Fatalf("Error walking through bazel-testlogs: %v", err)
 	}
@@ -120,7 +121,7 @@ func main() {
 
 		logger.Printf("Running post-run command: %s", c.String())
 
-		if err := c.Execute(); err != nil {
+		if err := c.Execute(cfg.PostRunTimeout); err != nil {
 			logger.Printf("Error running post-run command: %v", err)
 		}
 	}
@@ -139,6 +140,7 @@ func parseFlags() *Config {
 	flag.StringVar(&cfg.TestlogsDir, "testlogs-dir", "bazel-testlogs", "Directory containing test.xml files")
 	flag.StringVar(&cfg.OutputFile, "output-file", "results.xml", "Output file for merged test results")
 	flag.StringVar(&cfg.PostRunCmd, "post-run", "", "Command to run after the tests results merged")
+	flag.DurationVar(&cfg.PostRunTimeout, "post-run-timeout", time.Minute, "Timeout for the post-run command")
 	flag.BoolVar(&cfg.ShowVersion, "version", false, "Show version information")
 	flag.BoolVar(&cfg.Silent, "silent", false, "Silent mode (suppress output)")
 

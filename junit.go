@@ -3,8 +3,8 @@ package main
 import (
 	"encoding/xml"
 	"fmt"
-
-	"golang.org/x/exp/maps"
+	"maps"
+	"slices"
 )
 
 // Property maps to a <property> element that's part of <properties>.
@@ -133,7 +133,7 @@ func (ts *TestSuite) AddTestCases(unique bool, tcs ...TestCase) {
 	}
 
 	// convert map back to slice
-	ts.TestCases = maps.Values(testMap)
+	ts.TestCases = slices.Collect(maps.Values(testMap))
 }
 
 // Compute updates some statistics for the test suite based on the test cases it
@@ -263,6 +263,6 @@ func MergeTestSuites(reports ...TestSuites) TestSuites {
 	}
 
 	return TestSuites{
-		TestSuites: maps.Values(suites),
+		TestSuites: slices.Collect(maps.Values(suites)),
 	}
 }
